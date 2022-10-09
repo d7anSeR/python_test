@@ -1,32 +1,37 @@
 import os
-import requests
+
 from bs4 import BeautifulSoup
+
+import requests
 from time import sleep
-URL = "https://www.kinopoisk.ru/film/435/reviews/"
+from random import randint 
+
+
+URL = 'https://www.kinopoisk.ru/film/435/reviews/'
 html_text = requests.get(URL).text
-soup = BeautifulSoup(html_text, 'html.parser')
+sleep(randint(3,10))
+
+soup = BeautifulSoup(html_text, features = "lxml")
 i = 0
 data = []
 review = soup.find('div', class_= 'reviewItem userReview')
-reviewsAll = soup.findAll('div', class_= 'reviewItem userReview')
-len(reviewsAll)
-for p in range(1, 11):
-    print(p)
+reviewsAll = soup.findAll("div", {"class":"reviewItem userReview"})
+print(len(reviewsAll))
+p = 1
+for p in range(1, 46):
     url = f"https://www.kinopoisk.ru/film/435/reviews/ord/date/status/all/perpage/10/page/{p}/"
-
     req = requests.get(url)
     sleep(3)
+    i = 0
     soup = BeautifulSoup(req.text, 'lxml')
-    reviewsAll = soup.findAll('div', class_= 'reviewItem userReview')
-    len(reviewsAll)
     for review in reviewsAll:
-        feedback = soup.find('span', class_ ='_reachbanner_').text
+        #feedback = soup.find('span', class_ ='_reachbanner_').text
         if soup.find('span', class_ = 'yes'):
           nature_review = '\good'
         if soup.find('span', class_ = 'no'):
           nature_review = '\bad'
         #wayfile = 'C:\dataset' + nature_review + i.zfill(4)
-       # f = open(wayfile, 'w')
-        data.append([nature_review, feedback])
-    i += 1
-len(data)
+        #f = open(wayfile, 'w')
+        data.insert(i, i)
+        i += 1
+print(data)
