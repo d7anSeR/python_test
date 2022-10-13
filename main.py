@@ -1,36 +1,41 @@
 import os
-
-from bs4 import BeautifulSoup
+from time import sleep
 
 import requests
-from time import sleep
-from random import randint 
-
+from bs4 import BeautifulSoup
 
 URL = 'https://www.kinopoisk.ru/film/435/reviews/'
 html_text = requests.get(URL).text
-sleep(2)
+sleep(1)
 
-soup = BeautifulSoup(html_text, features = "lxml")
+soup = BeautifulSoup(html_text, features="lxml")
 i = 0
-data = []
-review = soup.find('div', class_= 'reviewItem userReview')
-reviewsAll = soup.findAll("div", {"class":"reviewItem userReview"})
+review = soup.find('div', class_='reviewItem userReview')
+reviewsAll = soup.findAll("div", {"class": "reviewItem userReview"})
 print(len(reviewsAll))
-p = 1
+title_film = soup.find("a", {"class": "breadcrumbs__link"})
+print(title_film)
 i = 0
 for p in range(1, 46):
     url = f"https://www.kinopoisk.ru/film/435/reviews/ord/date/status/all/perpage/10/page/{p}/"
     req = requests.get(url)
-    sleep(1)
+    sleep(3)
     soup = BeautifulSoup(req.text, 'lxml')
-    for review in reviewsAll:
-        feedback = soup.find('span', class_ ='_reachbanner_')
-        if soup.find('span', class_ = 'yes'):
-          nature_review = "\good\\"
-        if soup.find('span', class_ = 'no'):
-          nature_review = "\bad\\"
-        f = open("C:\dataset" + nature_review + i.zfill(4), 'w')
-        data.insert(i, i)
+    for r in reviewsAll:
+        feedback = soup.find('span', class_='_reachbanner_').text
+        if soup.find('span', class_='yes'):
+            number = (i+1).zfill(4)
+            with open('dataset/good/{number}.txt', mode = 'w') as f:
+                f.write(title_film)
+                f.write('\n')
+                f.write(feedback)
+            pass
+        if soup.find('span', class_='no'):
+            number = (i+1).zfill(4)
+            with open('dataset/bad/{number}.txt', mode = 'w') as f:
+                f.write(title_film)
+                f.write('\n')
+                f.write(feedback)
+            pass
         i += 1
-print(data)
+print("done")
