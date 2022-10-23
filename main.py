@@ -1,5 +1,4 @@
 import os
-import string
 from time import sleep
 
 import requests
@@ -8,37 +7,37 @@ import codecs
 
 
 def make_dir():
-    if not os.path.isdir("dataset"):
-        os.mkdir("dataset")
-    if not os.path.isdir("dataset/good"):
-        os.mkdir("dataset/good")
-    if not os.path.isdir("dataset/bad"):
-        os.mkdir("dataset/bad")
+    if not os.path.isdir('dataset'):
+        os.mkdir('dataset')
+    if not os.path.isdir('dataset/good'):
+        os.mkdir('dataset/good')
+    if not os.path.isdir('dataset/bad'):
+        os.mkdir('dataset/bad')
 
 
 def review_good(data_good, pages, link_page):
     for page in range(1, pages+1):
         print(page)
-        url = link_page + f"{pages}/"
-        sleep(30 + 3*page)
+        url = link_page + f'{pages}/'
+        sleep(30 + 2*page)
         req = requests.get(url)
-        req.encoding = 'UTF-8'
         soup = BeautifulSoup(req.text, 'lxml')
         try:
-            title_film = soup.find("a", class_="breadcrumbs__link").text
+            title_film = soup.find('a', class_='breadcrumbs__link').text
         except:
-            print("error when parsng the website")
+            print("error when parsing the website")
             return
-        reviewsAll = soup.findAll("div", class_="response good")
+        reviewsAll = soup.findAll('div', class_='response good')
         for review in reviewsAll:
-            feedback = review.find("span", {"class": "_reachbanner_"}).text
+            feedback = review.find('span', class_='_reachbanner_').text
+            print(data_good)
             if data_good < 1000:
                 number = str(data_good+1).zfill(4)
-                data_good += 1
+                data_good = data_good + 1
             try:
-                with codecs.open(f'dataset/good/{number}.txt', 'w', "utf-8") as f:
-                    f.write(title_film + '\n' + feedback)
-                pass
+                file = codecs.open(f'dataset/good/{number}.txt', 'w', 'utf-8')
+                file.write(title_film + '\n' + feedback)
+                file.close()
             except:
                 print("Error open file")
     return data_good
@@ -47,26 +46,25 @@ def review_good(data_good, pages, link_page):
 def review_bad(data_bad, pages, link_page):
     for page in range(1, pages+1):
         print(page)
-        url = link_page + f"{pages}/"
-        sleep(30 + 2*pages)
+        url = link_page + f'{pages}/'
+        sleep(30+2*page)
         req = requests.get(url)
-        req.encoding = 'UTF-8'
         soup = BeautifulSoup(req.text, 'lxml')
         try:
-            title_film = soup.find("a", class_="breadcrumbs__link").text
+            title_film = soup.find('a', class_='breadcrumbs__link').text
         except:
-            print("error when parsng the website")
+            print("error when parsing the website")
             return
-        reviewsAll = soup.findAll("div", class_="response bad")
+        reviewsAll = soup.findAll('div', class_='response bad')
         for review in reviewsAll:
-            feedback = review.find("span", {"class": "_reachbanner_"}).text
+            feedback = review.find('span', class_='_reachbanner_').text
             if data_bad < 1000:
                 number = str(data_bad+1).zfill(4)
                 data_bad += 1
             try:
-                with codecs.open(f'dataset/bad/{number}.txt', 'w', "utf-8") as f:
-                    f.write(title_film + '\n' + feedback)
-                pass
+                file = codecs.open(f'dataset/bad/{number}.txt', 'w', 'utf-8')
+                file.write(title_film + '\n' + feedback)
+                file.close()
             except:
                 print("Error open file")
     return data_bad
