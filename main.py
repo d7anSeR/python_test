@@ -4,38 +4,56 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 import codecs
+#from selenium import webdriver
+#import random
+
+
+# def get_session(proxies):
+#     # создаем сессию для отправки HTTP запроса
+#     session = requests.Session()
+#     # выбираем случайным образом один из адресов
+#     proxy = random.choice(proxies)
+#     session.proxies = {"http": proxy, "https": proxy}
+#     return session
 
 
 def make_dir():
+    name_dir_good = os.path.join('dataset','good')
+    name_dir_bad = os.path.join('dataset','bad')
     if not os.path.isdir('dataset'):
         os.mkdir('dataset')
-    if not os.path.isdir('dataset/good'):
-        os.mkdir('dataset/good')
-    if not os.path.isdir('dataset/bad'):
-        os.mkdir('dataset/bad')
+    if not os.path.isdir(name_dir_good):
+        name = os.path.join('dataset', 'good')
+        os.mkdir(name)
+    if not os.path.isdir(name_dir_bad):
+        name = os.path.join('dataset', 'bad')
+        os.mkdir(name)
 
 
 def review_good(data_good, pages, link_page):
     for page in range(1, pages+1):
+        flag = True
         print(page)
-        url = link_page + f'{pages}/'
-        sleep(30 + 2*page)
-        req = requests.get(url)
-        soup = BeautifulSoup(req.text, 'lxml')
-        try:
-            title_film = soup.find('a', class_='breadcrumbs__link').text
-        except:
-            print("error when parsing the website")
-            return
+        while (flag):
+            url = link_page + f'{pages}/'
+            sleep(30 + 2*page)
+            req = requests.get(url)
+            soup = BeautifulSoup(req.text, 'lxml')
+            try:
+                title_film = soup.find('a', class_='breadcrumbs__link').text
+                flag = False
+            except:
+                sleep(900)
         reviewsAll = soup.findAll('div', class_='response good')
         for review in reviewsAll:
             feedback = review.find('span', class_='_reachbanner_').text
-            print(data_good)
             if data_good < 1000:
-                number = str(data_good+1).zfill(4)
-                data_good = data_good + 1
+                number = str(data_good + 1).zfill(4)
+                data_good += 1
+                print(data_good)
             try:
-                file = codecs.open(f'dataset/good/{number}.txt', 'w', 'utf-8')
+                name_file = os.path.join('dataset', 'good', '{number}.txt')
+                file = codecs.open(name_file, 'w', 'utf-8')
                 file.write(title_film + '\n' + feedback)
                 file.close()
             except:
@@ -45,24 +63,28 @@ def review_good(data_good, pages, link_page):
 
 def review_bad(data_bad, pages, link_page):
     for page in range(1, pages+1):
+        flag = True
         print(page)
-        url = link_page + f'{pages}/'
-        sleep(30+2*page)
-        req = requests.get(url)
-        soup = BeautifulSoup(req.text, 'lxml')
-        try:
-            title_film = soup.find('a', class_='breadcrumbs__link').text
-        except:
-            print("error when parsing the website")
-            return
+        while (flag):
+            url = link_page + f'{pages}/'
+            sleep(30+2*page)
+            req = requests.get(url)
+            soup = BeautifulSoup(req.text, 'lxml')
+            try:
+                title_film = soup.find('a', class_='breadcrumbs__link').text
+                flag = False
+            except:
+                sleep(900)
         reviewsAll = soup.findAll('div', class_='response bad')
         for review in reviewsAll:
             feedback = review.find('span', class_='_reachbanner_').text
             if data_bad < 1000:
                 number = str(data_bad+1).zfill(4)
                 data_bad += 1
+                print(data_bad)
             try:
-                file = codecs.open(f'dataset/bad/{number}.txt', 'w', 'utf-8')
+                name_file = os.path.join('dataset', 'bad', '{number}.txt')
+                file = codecs.open(name_file, 'w', 'utf-8')
                 file.write(title_film + '\n' + feedback)
                 file.close()
             except:
@@ -71,7 +93,7 @@ def review_bad(data_bad, pages, link_page):
 
 
 def run():
-    _data_good = _data_bad = 0
+    _data_good, _data_bad = 0, 0
     make_dir()
     _data_good = review_good(
         _data_good, 50, 'https://www.kinopoisk.ru/film/326/reviews/ord/date/status/good/perpage/10/page/')
